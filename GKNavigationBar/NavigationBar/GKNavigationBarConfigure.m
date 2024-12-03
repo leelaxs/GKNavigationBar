@@ -472,6 +472,7 @@ static CGFloat tabBarHeight = -1;
     UIWindow *window = nil;
     if (@available(iOS 13.0, *)) {
         for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (![windowScene isMemberOfClass:[UIWindowScene class]]) continue;
             if (windowScene.activationState == UISceneActivationStateForegroundActive) {
                 for (UIWindow *w in windowScene.windows) {
                     if (window.isKeyWindow) {
@@ -496,7 +497,7 @@ static CGFloat tabBarHeight = -1;
         }
     }
     
-    if (!window) {
+    if (!window && [UIApplication.sharedApplication.delegate respondsToSelector:@selector(window)]) {
         window = [UIApplication sharedApplication].delegate.window;
     }
     
