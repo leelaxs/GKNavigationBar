@@ -787,7 +787,7 @@ static NSInteger is35InchScreen = -1;
         } else {
             // 16 Pro - 17 Pro Max 导航栏y值是56.333333
             // Air 导航栏的y值是62.333333
-            result == (safeTop - 5 - 2 * pixelOne);
+            result += (safeTop - 5 - 2 * pixelOne);
         }
     }else {
         result += safeTop;
