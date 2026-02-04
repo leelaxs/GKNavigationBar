@@ -130,6 +130,9 @@ NS_ASSUME_NONNULL_BEGIN
 // 是否带灵动岛
 @property (class, nonatomic, readonly) BOOL isDynamicIslandScreen;
 
+// 是否是液态屏
+@property (class, nonatomic, readonly) BOOL isLiquidGlass;
+
 // 带物理凹槽的刘海屏或者使用 Home Indicator 类型的设备
 @property (class, nonatomic, readonly) BOOL isNotchedScreen;
 
@@ -192,6 +195,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, readonly) CGSize screenSizeFor47Inch;
 @property (class, nonatomic, readonly) CGSize screenSizeFor40Inch;
 @property (class, nonatomic, readonly) CGSize screenSizeFor35Inch;
+
+@property (class, nonatomic, readonly) CGFloat navBarForIpad;
+
+@property (class, nonatomic, readonly) CGFloat navBarForIphone;
 
 // 导航栏高度，包括竖屏，横屏，放大模式，非全屏模式
 // 机型\高度         尺寸        竖屏       横屏      放大模式    非全屏模式

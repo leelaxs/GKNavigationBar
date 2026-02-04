@@ -202,6 +202,11 @@
             @"iPhone17,2" : @"iPhone 16 Pro Max",
             @"iPhone17,3" : @"iPhone 16",
             @"iPhone17,4" : @"iPhone 16 Plus",
+            @"iPhone17,5" : @"iPhone 16e",
+            @"iPhone18,1" : @"iPhone 17 Pro",
+            @"iPhone18,2" : @"iPhone 17 Pro Max",
+            @"iPhone18,3" : @"iPhone 17",
+            @"iPhone18,4" : @"iPhone Air",
             
             @"iPad1,1" : @"iPad 1",
             @"iPad2,1" : @"iPad 2 (WiFi)",
@@ -342,6 +347,19 @@
             @"Watch7,3" : @"Apple Watch Series 9 41mm case (GPS+Cellular)",
             @"Watch7,4" : @"Apple Watch Series 9 45mm case (GPS+Cellular)",
             @"Watch7,5" : @"Apple Watch Ultra 2",
+            @"Watch7,8" : @"Apple Watch Series 10 42mm case (GPS)",
+            @"Watch7,9" : @"Apple Watch Series 10 46mm case (GPS)",
+            @"Watch7,10" : @"Apple Watch Series 10 42mm case (GPS+Cellular)",
+            @"Watch7,11" : @"Apple Watch Series 10 46mm (GPS+Cellular)",
+            @"Watch7,12" : @"Apple Watch Ultra 3 49mm",
+            @"Watch7,13" : @"Apple Watch SE 3 40mm",
+            @"Watch7,14" : @"Apple Watch SE 3 44mm",
+            @"Watch7,15" : @"Apple Watch SE 3 40mm (GPS+Cellular)",
+            @"Watch7,16" : @"Apple Watch SE 3 44mm (GPS+Cellular)",
+            @"Watch7,17" : @"Apple Watch Series 11 42mm",
+            @"Watch7,18" : @"Apple Watch Series 11 46mm",
+            @"Watch7,19" : @"Apple Watch Series 11 42mm (GPS + Celllular)",
+            @"Watch7,20" : @"Apple Watch Series 11 46mm (GPS + Celllular)",
             
             @"AudioAccessory1,1" : @"HomePod",
             @"AudioAccessory1,2" : @"HomePod",
@@ -442,17 +460,45 @@ static NSInteger isSimulator = -1;
 //@"iPhone17,2" : @"iPhone 16 Pro Max",
 //@"iPhone17,3" : @"iPhone 16",
 //@"iPhone17,4" : @"iPhone 16 Plus",
+//@"iPhone17,5" : @"iPhone 16e",
+//@"iPhone18,1" : @"iPhone 17 Pro",
+//@"iPhone18,2" : @"iPhone 17 Pro Max",
+//@"iPhone18,3" : @"iPhone 17",
+//@"iPhone18,4" : @"iPhone Air",
 static NSInteger isDynamicIslandScreen = -1;
 + (BOOL)isDynamicIslandScreen {
     if (![self isIPhone]) return NO;
     if (isDynamicIslandScreen < 0) {
-        NSArray *models = @[@"iPhone 14 Pro", @"iPhone 15", @"iPhone 16"];
+        NSArray *excludeModels = @[@"iPhone 16e"];
+        NSPredicate *excludePredicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            return [evaluatedObject isKindOfClass:NSString.class] && [[self deviceName] hasPrefix:evaluatedObject];
+        }];
+        if ([excludeModels filteredArrayUsingPredicate:excludePredicate].count > 0) {
+            return NO;
+        }
+        
+        NSArray *models = @[@"iPhone 14 Pro", @"iPhone 15", @"iPhone 16", @"iPhone 17", @"iPhone Air"];
         NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
             return [evaluatedObject isKindOfClass:NSString.class] && [[self deviceName] hasPrefix:evaluatedObject];
         }];
         isDynamicIslandScreen = [models filteredArrayUsingPredicate:predicate].count > 0 ? 1 : 0;
     }
     return isDynamicIslandScreen > 0;
+}
+
+static NSInteger isLiquidGlass = -1;
++ (BOOL)isLiquidGlass {
+    if (@available(iOS 26.0, *)) {
+        // 获取info.plist里面的值
+        NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
+        if (infoDictionary && [infoDictionary.allKeys containsObject:@"UIDesignRequiresCompatibility"]) {
+            BOOL result = [infoDictionary[@"UIDesignRequiresCompatibility"] boolValue];
+            isLiquidGlass = result ? 0 : 1;
+        } else {
+            isLiquidGlass = 1;
+        }
+    }
+    return isLiquidGlass > 0;
 }
 
 static NSInteger isNotchedScreen = -1;
@@ -680,60 +726,102 @@ static NSInteger is35InchScreen = -1;
     return CGSizeMake(320, 480);
 }
 
++ (CGFloat)navBarForIpad {
+    if ([self isLiquidGlass]) {
+        return 54;
+    }
+    return GK_SYSTEM_VERSION >= 12.0 ? 50 : 44;
+}
+
++ (CGFloat)navBarForIphone {
+    if ([self isLiquidGlass]) {
+        return 54;
+    }
+    return 44;
+}
+
 + (CGFloat)navBarHeight {
     if ([self isIPad]) {
-        return GK_SYSTEM_VERSION >= 12.0 ? 50 : 44;
+        return [self navBarForIpad];
     }
     if (GK_IS_LANDSCAPE) {
-        return [self isRegularScreen] ? 44 : 32;
+        return [self isRegularScreen] ? [self navBarForIphone] : 32;
     }else {
-        return 44;
+        return [self navBarForIphone];
     }
 }
 
 + (CGFloat)navBarHeightForPortrait {
     if ([self isIPad]) {
-        return GK_SYSTEM_VERSION >= 12.0 ? 50 : 44;
+        return [self navBarForIpad];
     }
-    return 44;
+    return [self navBarForIphone];
 }
 
 + (CGFloat)navBarHeight_nonFullScreen {
-    return 56;
+    return [self isLiquidGlass] ? 70 : 56;
+}
+
++ (CGFloat)navBarForIphonePortrait {
+    CGFloat pixelOne = 1.0 / UIScreen.mainScreen.scale;
+    UIEdgeInsets insets = [self safeAreaInsets];
+    CGFloat safeTop = insets.top;
+    if ([self isNotchedScreen]) {
+        safeTop = MAX(MAX(insets.left, insets.right), MAX(insets.top, insets.bottom));
+    }
+    CGFloat result = 0;
+    result += [self navBarForIphone];
+    if ([self isLiquidGlass]) { // 液态屏，导航栏y值和安全区域高度一致，导航栏高度变成54
+        result += safeTop;
+    } else if ([self isDynamicIslandScreen]) { // 带灵动岛的屏幕
+        // 14 Pro Max - 16 Plus 安全区域顶部高度59，导航栏y值53.666666
+        // 16 Pro - 17 Pro Max 安全区域顶部高度62，导航栏y值56.333333
+        // Air 安全区域顶部高度68，导航栏y值62.333333
+        
+        // 经研究发现
+        // 14 Pro Max - 16 Plus 的导航栏y值可以用安全区域顶部高度-5-1像素的高度
+        // 16 Pro - 17 Pro Max 包括Air，安全区域顶部高度-5-2倍的1像素的高度
+        if (safeTop <= 59) { // 14 Pro Max - 16 Plus 安全区域顶部高度59
+            // 14 Pro Max - 16 Plus 导航栏的y值53.666666
+            result += (safeTop - 5 - pixelOne);
+        } else {
+            // 16 Pro - 17 Pro Max 导航栏y值是56.333333
+            // Air 导航栏的y值是62.333333
+            result += (safeTop - 5 - 2 * pixelOne);
+        }
+    }else {
+        result += safeTop;
+    }
+    return result;
 }
 
 + (CGFloat)navBarFullHeight {
-    NSString *deviceModel = [self deviceModel];
-    CGFloat pixelOne = 1.0 / UIScreen.mainScreen.scale;
-    CGFloat result = [self statusBarFullHeight];
-    if (isIPad) {
-        result += 50;
+    CGFloat statusBarH = [self statusBarFullHeight];
+    CGFloat result = 0;
+    if ([self isIPad]) {
+        result += statusBarH;
+        result += [self navBarForIpad];
     }else if (GK_IS_LANDSCAPE) {
-        result += ([self isRegularScreen] ? 44 : 32);
-    }else {
-        result += 44;
-        if ([deviceModel isEqualToString:@"iPhone17,1"] || [deviceModel isEqualToString:@"iPhone17,2"]) { // 16 Pro / 16 Pro Max
-            result += (2 + pixelOne); // 56.333
-        }else if ([self isDynamicIslandScreen]) {
-            result -= pixelOne;  //53.667
+        if ([self isLiquidGlass]) {
+            result += 24;
+        } else {
+            result += statusBarH;
         }
+        result += [self isRegularScreen] ? [self navBarForIphone] : 32;
+    }else {
+        result = [self navBarForIphonePortrait];
     }
     return result;
 }
 
 + (CGFloat)navBarFullHeightForPortrait {
-    NSString *deviceModel = [self deviceModel];
-    CGFloat pixelOne = 1.0 / UIScreen.mainScreen.scale;
-    CGFloat result = [self statusBarHeightForPortrait];
-    if (isIPad) {
-        result += 50;
+    CGFloat statusBarH = [self statusBarHeightForPortrait];
+    CGFloat result = 0;
+    if ([self isIPad]) {
+        result += statusBarH;
+        result += [self navBarForIpad];
     }else {
-        result += 44;
-        if ([deviceModel isEqualToString:@"iPhone17,1"] || [deviceModel isEqualToString:@"iPhone17,2"]) { // 16 Pro / 16 Pro Max
-            result += (2 + pixelOne); // 56.333
-        }else if ([self isDynamicIslandScreen]) {
-            result -= pixelOne;  //53.667
-        }
+        result = [self navBarForIphonePortrait];
     }
     return result;
 }
