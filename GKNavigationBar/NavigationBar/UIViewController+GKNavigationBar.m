@@ -909,7 +909,8 @@ static char kAssociatedObjectKey_navItemRightSpace;
 }
 
 - (void)setNavBackgroundImage:(UIImage *)image color:(UIColor *)color {
-    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceIdiomCarPlay) return;
+    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceIdiomCarPlay ||
+        [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) return;
     if (@available(iOS 13.0, *)) {
         UINavigationBarAppearance *appearance = self.gk_navigationBar.standardAppearance;
         UIColor *shadowColor = appearance.shadowColor;
@@ -930,7 +931,8 @@ static char kAssociatedObjectKey_navItemRightSpace;
 }
 
 - (void)setNavShadowImage:(UIImage *)image color:(UIColor *)color {
-    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceIdiomCarPlay) return;
+    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceIdiomCarPlay ||
+        [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) return;
     if (@available(iOS 13.0, *)) {
         UINavigationBarAppearance *appearance = self.gk_navigationBar.standardAppearance;
         UIColor *backgroundColor = appearance.backgroundColor;
@@ -951,7 +953,8 @@ static char kAssociatedObjectKey_navItemRightSpace;
 }
 
 - (void)setNavTitleAttributes:(NSDictionary<NSAttributedStringKey, id> *)attr {
-    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceIdiomCarPlay) return;
+    if (self.traitCollection.userInterfaceStyle == UIUserInterfaceIdiomCarPlay ||
+        [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) return;
     if (@available(iOS 13.0, *)) {
         UINavigationBarAppearance *appearance = self.gk_navigationBar.standardAppearance;
         appearance.titleTextAttributes = attr;
