@@ -8,6 +8,7 @@
 
 #import "GKCustomNavigationBar.h"
 #import "GKNavigationBarDefine.h"
+#import <CarPlay/CarPlay.h>
 
 @implementation GKCustomNavigationBar
 
@@ -101,29 +102,41 @@
     }
 }
 
+- (BOOL)gk_isCarPlayActive {
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+            if ([scene isKindOfClass:[CPTemplateApplicationScene class]] &&
+                scene.activationState == UISceneActivationStateForegroundActive) {
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
 - (void)setStandardAppearance:(UINavigationBarAppearance *)standardAppearance {
-    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+    if ([self gk_isCarPlayActive]) {
         return;
     }
     [super setStandardAppearance:standardAppearance];
 }
 
 - (void)setScrollEdgeAppearance:(UINavigationBarAppearance *)scrollEdgeAppearance {
-    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+    if ([self gk_isCarPlayActive]) {
         return;
     }
     [super setScrollEdgeAppearance:scrollEdgeAppearance];
 }
 
 - (void)setCompactAppearance:(UINavigationBarAppearance *)compactAppearance{
-    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+    if ([self gk_isCarPlayActive]) {
         return;
     }
     [super setCompactAppearance:compactAppearance];
 }
 
 - (void)setCompactScrollEdgeAppearance:(UINavigationBarAppearance *)compactScrollEdgeAppearance{
-    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+    if ([self gk_isCarPlayActive]) {
         return;
     }
     [super setCompactScrollEdgeAppearance:compactScrollEdgeAppearance];
