@@ -101,6 +101,34 @@
     }
 }
 
+- (void)setStandardAppearance:(UINavigationBarAppearance *)standardAppearance {
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+        return;
+    }
+    [super setStandardAppearance:standardAppearance];
+}
+
+- (void)setScrollEdgeAppearance:(UINavigationBarAppearance *)scrollEdgeAppearance {
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+        return;
+    }
+    [super setScrollEdgeAppearance:scrollEdgeAppearance];
+}
+
+- (void)setCompactAppearance:(UINavigationBarAppearance *)compactAppearance{
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+        return;
+    }
+    [super setCompactAppearance:compactAppearance];
+}
+
+- (void)setCompactScrollEdgeAppearance:(UINavigationBarAppearance *)compactScrollEdgeAppearance{
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomCarPlay) {
+        return;
+    }
+    [super setCompactScrollEdgeAppearance:compactScrollEdgeAppearance];
+}
+
 #pragma - 屏蔽父试图的touches事件
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {}
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {}
